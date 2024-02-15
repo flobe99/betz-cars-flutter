@@ -1,0 +1,254 @@
+swagger: "2.0"
+info:
+  title: Betz Cars
+  description: API description in Markdown.
+  version: 0.1.0
+host: betz-cars.betz-group.de
+basePath: /v1
+schemes:
+  - https
+paths:
+  /cars:
+    get:
+      summary: Returns a list of cars.
+      description: List all the cars, which are currently in Betz vehicle fleet.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Car"
+  /cars/{carId}:
+    get:
+      summary: Return a specific car.
+      parameters:
+        - in: path
+          name: carId
+          required: true
+          type: integer
+          minimum: 0
+          description: Unique car ID.
+      responses:
+        200:
+          description: A car object.
+          schema:
+            $ref: "#/definitions/Car"
+        400:
+          description: The specific car Id is invalid (e.g not a number)
+        404:
+          description: A car with the specific ID was not found
+        default:
+          description: Unexpected error
+
+      description: Specific car in the Betz vehicle fleet.
+      produces:
+        - application/json
+  /cars/addCar:
+    post:
+      summary: Add a car
+      description: Add a car car to Betz vehicle fleet.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Car"
+
+  /cars/updateCar/{carId}:
+    put:
+      summary: Update a car
+      description: Update car specific properties of the betz vehicle fleet.
+      parameters:
+        - in: path
+          name: carId
+          required: true
+          type: integer
+          minimum: 0
+          description: Unique car ID.
+      responses:
+        200:
+          schema:
+            $ref: "#/definitions/Car"
+          description: Update
+
+  /cars/deleteCar/{carId}:
+    delete:
+      summary: Delete a car by Id.
+      parameters:
+        - in: path
+          name: carId
+          required: true
+          type: integer
+          minimum: 0
+          description: Unique car ID.
+      description: Delete a car from Betz vehicle fleet.
+      responses:
+        200:
+          description: OK
+
+  /fuels:
+    get:
+      summary: Get all fuel data
+      description: Get all car fuel informations
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Repair"
+
+  /fuels/deleteFuel/{fuelId}:
+    delete:
+      summary: Delete specific fuel data
+      description: Delete specific car fuel data
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+
+  /repair:
+    get:
+      summary: Get all repair data
+      description: Get all car repair informations
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Repair"
+
+  /repair/{repairId}:
+    get:
+      summary: Get specific repair data
+      description: Get specific repair informations
+      parameters:
+        - in: path
+          name: repairId
+          required: true
+          type: integer
+          minimum: 0
+          description: Unique repair ID.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Repair"
+
+  /repair/addRepair:
+    post:
+      summary: Add repair data
+      description: Add repair data for a specific vehicle of the fleet.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Repair transfer succesfully
+          schema:
+            $ref: "#/definitions/Repair"
+
+  /repair/update/{repairId}:
+    put:
+      summary: Update specific repair
+      description: Update an existing repair for a specific vehicle in the fleet.
+      parameters:
+        - in: path
+          name: repairId
+          required: true
+          type: integer
+          minimum: 0
+          description: Unique repair ID.
+
+      produces:
+        - application/json
+      responses:
+        200:
+          description: Repair updated succesfully
+          schema:
+            $ref: "#/definitions/Repair"
+
+definitions:
+  Car:
+    properties:
+      id:
+        type: integer
+        example: 4
+      producer:
+        type: string
+        example: Volkswagen
+      modell:
+        type: string
+        example: Golf 7
+      year:
+        type: integer
+        example: 2013
+      kilometers:
+        type: integer
+        example: 180000
+      buying-price:
+        type: integer
+        example: 32000
+      repair-costs:
+        type: integer
+        example: 0
+      customer-service:
+        type: string
+        format: date
+        example: "2024-01-15"
+      oil-change:
+        type: string
+        format: date
+        example: "2024-01-16"
+      next-inspection:
+        type: string
+        format: date
+        example: "2024-01-17"
+
+  Fuel:
+    properties:
+      id:
+        type: integer
+        example: 2
+      kilometer:
+        type: integer
+        example: 180000
+      priceLiter:
+        type: integer
+        example: 1,66
+      liter:
+        type: integer
+        example: 33
+      price:
+        type: integer
+        example: 60
+      date:
+        type: string
+        format: date
+        example: "2024-02-02"
+
+  Repair:
+    properties:
+      id:
+        type: integer
+        example: 2
+      summary:
+        type: string
+        example: "Ölpumpenaustausch"
+      date:
+        type: string
+        format: date
+      workshop:
+        type: string
+        example: Birk
+      costs:
+        type: integer
+        example: 3290
+      kilometers:
+        type: integer
+        example: 180000
