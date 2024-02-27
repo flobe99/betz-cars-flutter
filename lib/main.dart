@@ -1,3 +1,6 @@
+import 'package:betz_cars/landing.dart';
+import 'package:betz_cars/signin.dart';
+import 'package:betz_cars/signup.dart';
 import 'package:flutter/material.dart';
 import 'overview.dart';
 
@@ -11,10 +14,15 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'SpruecheButton APP',
-      home: Overview(),
       color: Colors.black12,
+      routes: {
+        '/': (context) => Landing(),
+        '/signin': (context) => SignIn(),
+        '/signup': (context) => SignUp(),
+        '/overview': (context) => Overview(),
+      },
     );
   }
 }

@@ -9,6 +9,7 @@ import 'package:betz_cars/controller/getCars.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Overview extends StatefulWidget {
   const Overview({Key? key}) : super(key: key);
@@ -47,17 +48,38 @@ class _Overview extends State<Overview> {
         title: const Text('Betz Cars Fleet'),
         backgroundColor: Color.fromRGBO(16, 78, 138, 1),
         actions: [
-          GestureDetector(
+          PopupMenuItem(
             onTap: () {
               _getData();
             },
             child: Icon(Icons.refresh),
           ),
-          Container(
-            width: 20,
-          ),
-          GestureDetector(
-            child: Icon(Icons.more_vert),
+          PopupMenuButton(
+            itemBuilder: (context) {
+              return [
+                PopupMenuItem<int>(
+                  value: 0,
+                  child: Text("My Account"),
+                ),
+                PopupMenuItem<int>(
+                  value: 1,
+                  child: Text("Settings"),
+                  onTap: () {},
+                ),
+                PopupMenuItem<int>(
+                  value: 2,
+                  child: Text("Logout"),
+                  onTap: () async {
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    prefs.remove("username");
+                    //Navigator.pushNamed(context, '/login');
+                    Navigator.pushNamedAndRemoveUntil(
+                        context, '/signin', ModalRoute.withName('/signin'));
+                  },
+                ),
+              ];
+            },
           ),
         ],
       ),
