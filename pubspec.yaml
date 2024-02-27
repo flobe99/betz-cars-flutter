@@ -30,8 +30,13 @@ flutter:
     - img/golf7.png
     - img/t-roc.png
     - img/polo.png
+    - assets/betz-group-logo.png
+    - assets/betz-group-black.png
+    - assets/betz-group-color.png
+    - assets/betz-group-no-background.png
+    - assets/betz-group-white.png
 
 flutter_launcher_icons:
-  image_path: "assets/betz-group-logo.png"
+  image_path: "assets/betz-group-no-background.png"
   android: true
   ios: false
