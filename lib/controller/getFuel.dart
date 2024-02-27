@@ -1,18 +1,16 @@
 import 'dart:convert';
 
-import 'package:betz_cars/models/constant.dart';
+import 'package:betz_cars/controller/constant.dart';
 import 'package:http/http.dart' as http;
 import 'package:betz_cars/models/Fuel.dart';
 import 'package:realm/realm.dart';
 
 class FuelApi {
   Future<List<Fuel>?> getCarFuels(carId) async {
-    print("carList Id: " + carId);
     var url = Uri.parse(REST_API_URL + '/cars/fuels/${carId}');
     var response = await http.get(url);
     if (response.statusCode == 200) {
       List<Fuel> _model = fuelModelFromJson(response.body);
-      print(_model);
       return _model;
     }
     return null;
@@ -23,7 +21,6 @@ class FuelApi {
     var response = await http.get(url);
     if (response.statusCode == 200) {
       List<Fuel> _model = fuelModelFromJson(response.body);
-      print(_model);
       return _model;
     }
     return null;
@@ -48,8 +45,6 @@ class FuelApi {
   }
 
   Future<int> updateFuel(id, data) async {
-    print("carList Id" + id);
-    print("date: " + data.date.toString());
     var request = {
       "carId": data.carId,
       "kilometer": data.kilometer,

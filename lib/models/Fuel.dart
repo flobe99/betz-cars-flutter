@@ -27,10 +27,6 @@ class Fuel {
   DateTime date;
 
   factory Fuel.fromJson(Map<String, dynamic> json) {
-    print("object");
-    print(json['_id']['\$oid']);
-    print(json['date']['\$date']);
-
     return Fuel(
       id: json['_id']['\$oid'],
       carId: json['_carId']['\$oid'],

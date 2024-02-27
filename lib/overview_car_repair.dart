@@ -1,42 +1,42 @@
-import 'dart:ffi';
-
 import 'package:betz_cars/addFuelData.dart';
+import 'package:betz_cars/controller/getRepairs.dart';
 import 'package:betz_cars/models/Car.dart';
 import 'package:betz_cars/models/Fuel.dart';
-import 'package:betz_cars/controller/getFuel.dart';
+import 'package:betz_cars/models/Repair.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
-class OverviewCarFuel extends StatefulWidget {
-  const OverviewCarFuel({
+class OverviewCarRepair extends StatefulWidget {
+  const OverviewCarRepair({
     super.key,
     this.carList,
   });
   final Car? carList;
   @override
-  _OverviewCarFuel createState() => _OverviewCarFuel();
+  _OverviewCarRepair createState() => _OverviewCarRepair();
 }
 
-class _OverviewCarFuel extends State<OverviewCarFuel> {
-  late List<Fuel>? _fuelList = [];
+class _OverviewCarRepair extends State<OverviewCarRepair> {
+  late List<Repair>? _repairList = [];
 
   var number_thousand_separator = NumberFormat('###,###', 'de_DE');
 
   @override
   void initState() {
     super.initState();
-    _getFuelData(widget.carList?.id);
+    _getRepairData(widget.carList?.id);
   }
 
-  void _getFuelData(carId) async {
-    _fuelList = [];
-    _fuelList = (await FuelApi().getCarFuels(carId))!;
+  void _getRepairData(carId) async {
+    _repairList = [];
+//    _repairList = (await RepairApi().getCarRepairs(carId))!;
+    _repairList = (await RepairApi().getRepair())!;
     Future.delayed(const Duration(seconds: 1)).then((value) => setState(() {}));
   }
 
   void _deleteFuelData(carId) async {
-    await FuelApi().deleteFuel(carId);
+    await RepairApi().deleteRepair(carId);
     Future.delayed(const Duration(seconds: 1)).then((value) => setState(() {}));
   }
 
@@ -48,7 +48,7 @@ class _OverviewCarFuel extends State<OverviewCarFuel> {
     });
   }
 
-  void _showContextMenu(BuildContext context, Fuel fuel) async {
+  void _showContextMenu(BuildContext context, Repair fuel) async {
     final RenderObject? overlay =
         Overlay.of(context)?.context.findRenderObject();
 
@@ -98,15 +98,15 @@ class _OverviewCarFuel extends State<OverviewCarFuel> {
 
         break;
       case 'edit':
+        /*
         Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => AddFuelData(
-                    carList: widget.carList as List<Car>,
-                    index: 0,
+                    carList: widget.carList,
                     fuelList: fuel,
                   )),
-        );
+        );*/
         break;
     }
   }
@@ -116,42 +116,38 @@ class _OverviewCarFuel extends State<OverviewCarFuel> {
     final DateFormat formatter = DateFormat('dd.MM.yyyy');
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.carList!.modell.toString() + ' Fuels'),
+        title: Text(widget.carList!.modell.toString() + ' Repairs'),
         backgroundColor: Color.fromRGBO(16, 78, 138, 1),
       ),
-      body: _fuelList == null || _fuelList!.isEmpty
+      body: _repairList == null || _repairList!.isEmpty
           ? const Center(
               child: CircularProgressIndicator(),
             )
           : RefreshIndicator(
               onRefresh: () async {
                 setState(() {
-                  _getFuelData(widget.carList?.id);
+                  _getRepairData(widget.carList?.id);
                 });
               },
               child: ListView.builder(
-                  itemCount: _fuelList!.length,
+                  itemCount: _repairList!.length,
                   //itemExtent: 100.0,
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTapDown: (details) => _getTapPosition(details),
                       onLongPress: () async {
-                        _showContextMenu(context, _fuelList![index]);
+                        _showContextMenu(context, _repairList![index]);
                       },
                       child: ExpansionTile(
                         //tileColor: Colors.grey[200],
                         shape: Border(bottom: BorderSide()),
-                        leading: Icon(Icons.local_gas_station),
-                        title: Text(
-                            //number_thousand_separator.format(_carList![index].kilometers).toString()
-                            number_thousand_separator
-                                    .format(_fuelList![index].kilometer)
-                                    .toString() +
-                                " km"),
+                        leading: FaIcon(FontAwesomeIcons.screwdriverWrench),
+                        title: Text(_repairList![index].summary),
                         subtitle:
-                            Text(formatter.format(_fuelList![index].date)),
+                            Text(formatter.format(_repairList![index].date)),
                         trailing: Text(
-                            _fuelList![index].price.toStringAsFixed(2) + " €"),
+                            _repairList![index].costs.toStringAsFixed(2) +
+                                " €"),
                         children: [
                           Table(
                             children: [
@@ -175,8 +171,8 @@ class _OverviewCarFuel extends State<OverviewCarFuel> {
                                     child: Container(
                                       child: Text(
                                         number_thousand_separator
-                                                .format(
-                                                    _fuelList![index].kilometer)
+                                                .format(_repairList![index]
+                                                    .kilometer)
                                                 .toString() +
                                             " km",
                                         style: TextStyle(
@@ -196,7 +192,7 @@ class _OverviewCarFuel extends State<OverviewCarFuel> {
                                       margin:
                                           const EdgeInsets.only(right: 15.0),
                                       child: Text(
-                                        "Price Liter:",
+                                        "Workshop:",
                                         style: TextStyle(
                                           //fontSize: 25.0,
                                           fontWeight: FontWeight.bold,
@@ -207,10 +203,7 @@ class _OverviewCarFuel extends State<OverviewCarFuel> {
                                   TableCell(
                                     child: Container(
                                       child: Text(
-                                        _fuelList![index]
-                                                .price_liter
-                                                .toStringAsFixed(2) +
-                                            " €",
+                                        _repairList![index].workshop,
                                         style: TextStyle(
                                           //fontSize: 18.0,
                                           fontWeight: FontWeight.normal,
@@ -228,7 +221,7 @@ class _OverviewCarFuel extends State<OverviewCarFuel> {
                                       margin:
                                           const EdgeInsets.only(right: 15.0),
                                       child: Text(
-                                        "Liter:",
+                                        "Summary:",
                                         style: TextStyle(
                                           //fontSize: 25.0,
                                           fontWeight: FontWeight.bold,
@@ -239,10 +232,7 @@ class _OverviewCarFuel extends State<OverviewCarFuel> {
                                   TableCell(
                                     child: Container(
                                       child: Text(
-                                        _fuelList![index]
-                                                .amount_liter
-                                                .toString() +
-                                            " L",
+                                        _repairList![index].summary,
                                         style: TextStyle(
                                           //fontSize: 18.0,
                                           fontWeight: FontWeight.normal,
@@ -271,8 +261,8 @@ class _OverviewCarFuel extends State<OverviewCarFuel> {
                                   TableCell(
                                     child: Container(
                                       child: Text(
-                                        _fuelList![index]
-                                                .price
+                                        _repairList![index]
+                                                .costs
                                                 .toStringAsFixed(2) +
                                             " €",
                                         style: TextStyle(
@@ -304,7 +294,7 @@ class _OverviewCarFuel extends State<OverviewCarFuel> {
                                     child: Container(
                                       child: Text(
                                         formatter
-                                            .format(_fuelList![index].date),
+                                            .format(_repairList![index].date),
                                         style: TextStyle(
                                           //fontSize: 18.0,
                                           fontWeight: FontWeight.normal,

@@ -2,11 +2,12 @@ import 'dart:ffi';
 import 'package:betz_cars/addFuelData.dart';
 import 'package:betz_cars/models/Fuel.dart';
 import 'package:betz_cars/overview_car_fuel.dart';
+import 'package:betz_cars/overview_car_repair.dart';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:betz_cars/models/Car.dart';
-import 'package:betz_cars/models/getCars.dart';
-import 'package:betz_cars/overview_car.dart';
+import 'package:betz_cars/controller/getCars.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 
 class Overview extends StatefulWidget {
@@ -28,7 +29,9 @@ class _Overview extends State<Overview> {
   }
 
   void _getData() async {
-    _carList = (await CarApi().getCars())!;
+    do {
+      _carList = (await CarApi().getCars())!;
+    } while (_carList?.isEmpty == true);
 
     Future.delayed(const Duration(seconds: 1)).then((value) => setState(() {}));
   }
@@ -36,12 +39,26 @@ class _Overview extends State<Overview> {
   @override
   Widget build(BuildContext context) {
     final DateFormat formatter = DateFormat('dd.MM.yyyy');
+
+    //return _carList!.isEmpty ? Text("test") : Text("data");
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Betz Cars Fleet'),
         backgroundColor: Color.fromRGBO(16, 78, 138, 1),
         actions: [
-          Icon(Icons.more_vert),
+          GestureDetector(
+            onTap: () {
+              _getData();
+            },
+            child: Icon(Icons.refresh),
+          ),
+          Container(
+            width: 20,
+          ),
+          GestureDetector(
+            child: Icon(Icons.more_vert),
+          ),
         ],
       ),
       body: Container(
@@ -222,13 +239,28 @@ class _Overview extends State<Overview> {
                     ),
                     Container(
                       margin: const EdgeInsets.only(top: 50),
-                      width: 150,
+                      width: 200,
                       //color: Colors.red,
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           FloatingActionButton(
                             heroTag: "btn1",
+                            backgroundColor: Colors.red,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => OverviewCarRepair(
+                                          carList: _carList![index],
+                                        )),
+                              );
+                            },
+                            child: FaIcon(FontAwesomeIcons.screwdriverWrench),
+                          ),
+                          const Spacer(),
+                          FloatingActionButton(
+                            heroTag: "btn2",
                             backgroundColor: Colors.orange,
                             onPressed: () {
                               Navigator.push(
@@ -243,14 +275,15 @@ class _Overview extends State<Overview> {
                           ),
                           const Spacer(),
                           FloatingActionButton(
-                            heroTag: "btn2",
+                            heroTag: "btn3",
                             backgroundColor: Colors.green,
                             onPressed: () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => AddFuelData(
-                                          carList: _carList?[index],
+                                          carList: _carList,
+                                          index: index,
                                           fuelList: Fuel(
                                               id: "-1",
                                               carId: "-1",

@@ -1,21 +1,21 @@
-import 'dart:ffi';
-
 import 'package:betz_cars/models/Car.dart';
 import 'package:betz_cars/models/Fuel.dart';
-import 'package:betz_cars/models/getFuel.dart';
+import 'package:betz_cars/controller/getFuel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class AddFuelData extends StatefulWidget {
-  const AddFuelData({super.key, this.carList, this.fuelList});
+  const AddFuelData({super.key, this.carList, this.index, this.fuelList});
 
-  final Car? carList;
+  final int? index;
+  final List<Car>? carList;
   final Fuel? fuelList;
   _AddFuelData createState() => _AddFuelData();
 }
 
 class _AddFuelData extends State<AddFuelData> {
+  late String carController;
   TextEditingController kilometerInputController = TextEditingController();
   TextEditingController priceKilometerInputController = TextEditingController();
   TextEditingController literKilometerInputController = TextEditingController();
@@ -27,6 +27,7 @@ class _AddFuelData extends State<AddFuelData> {
   @override
   void initState() {
     super.initState();
+    carController = widget.carList![widget.index!].modell;
     if (widget.fuelList!.id != "-1") {
       isStateUpdate = true;
       kilometerInputController.text = widget.fuelList!.kilometer.toString();
@@ -56,10 +57,12 @@ class _AddFuelData extends State<AddFuelData> {
 
   @override
   Widget build(BuildContext context) {
-    String _chosenModel = widget.carList!.modell;
+    List<String> _carModells = widget.carList!.map((car) {
+      return car.modell;
+    }).toList();
     return Scaffold(
       appBar: AppBar(
-        title: Text("Fuel Data " + widget.carList!.modell),
+        title: Text("Fuel Data " + widget.carList![widget.index!].modell),
         backgroundColor: Color.fromRGBO(16, 78, 138, 1),
       ),
       body: ListView(
@@ -73,10 +76,9 @@ class _AddFuelData extends State<AddFuelData> {
                   Center(
                     child: DropdownButton<String>(
                       enableFeedback: false,
-                      value: _chosenModel,
-                      items: <String>[
-                        widget.carList!.modell,
-                      ].map<DropdownMenuItem<String>>((String value) {
+                      value: carController,
+                      items: _carModells
+                          .map<DropdownMenuItem<String>>((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),
@@ -89,11 +91,13 @@ class _AddFuelData extends State<AddFuelData> {
                             fontSize: 16,
                             fontWeight: FontWeight.w600),
                       ),
-                      onChanged: (String? value) {},
+                      onChanged: (String? value) {
+                        setState(() {
+                          carController = value!;
+                        });
+                      },
                     ),
                   ),
-                  Text("value_1 : " + onchangeval),
-                  Text("value_2 : " + kilometerInputController.text),
                   Container(
                     margin: EdgeInsets.all(20.0),
                     child: TextFormField(
@@ -143,9 +147,7 @@ class _AddFuelData extends State<AddFuelData> {
                             priceInputController.text =
                                 price.toStringAsFixed(2);
                           }
-                        } on Exception catch (_) {
-                          print("test");
-                        }
+                        } on Exception catch (_) {}
                       },
                       controller: priceKilometerInputController,
                       keyboardType:
@@ -189,9 +191,7 @@ class _AddFuelData extends State<AddFuelData> {
                             priceInputController.text =
                                 price.toStringAsFixed(2);
                           }
-                        } on Exception catch (_) {
-                          print("test");
-                        }
+                        } on Exception catch (_) {}
                       },
                       controller: literKilometerInputController,
                       keyboardType:
@@ -295,7 +295,7 @@ class _AddFuelData extends State<AddFuelData> {
                           );
 
                           Fuel fuel_list = new Fuel(
-                              carId: widget.carList!.id,
+                              carId: widget.carList![widget.index!].id,
                               kilometer:
                                   int.parse(kilometerInputController.text),
                               price_liter: double.parse(
@@ -307,14 +307,10 @@ class _AddFuelData extends State<AddFuelData> {
                               id: "");
 
                           if (isStateUpdate) {
-                            print("_updateFuelData");
                             _updateFuelData(widget.fuelList?.id, fuel_list);
                           } else {
-                            print("_addFuelData");
                             _addFuelData(fuel_list);
                           }
-
-                          //print(status);
 
                           //if (status_code == 200) {
                           Navigator.pop(context);
